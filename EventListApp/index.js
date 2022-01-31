@@ -82,13 +82,13 @@ const View = (() => {
                     <input class="event-item event-input-box" name="eventName" disabled value="${ele.eventName}">
                     <input class="event-item event-input-box" name="startDate" disabled value="${formatDate(startdate)}">
                     <input class="event-item event-input-box" name="endDate"  disabled value="${formatDate(enddate)}">
-                    <div class="event-btn-group show">
+                    <div class="event-btn-group bt-group-1 show">
                     <button class="event-btns edit_btn" type="button">Edit</button>
                     <button class="event-btns delete_btn" type="button">Delete</button>
                     </div>
-                    <div class="event-btn-group hidden">
-                    <button class="event-btns" type="button">Save</button>
-                    <button class="event-btns" type="button">CLOSE</button>
+                    <div class="event-btn-group  bt-group-2 hidden">
+                    <button class="event-btns save_btn" type="button">SAVE </button>
+                    <button class="event-btns close_btn" type="button">CLOSE</button>
                     </div>
                 </li>
             `;
@@ -135,6 +135,9 @@ const Model = ((api, view) => {
             this.startDate = startD.getTime()+"";
             this.endDate = endD.getTime()+"";
             this.eventName = name;
+        }
+        setId(id){
+            this.id=id;
         }
     }
 
@@ -246,18 +249,73 @@ const Controller = ((model, view) => {
         });
     };
 
-    const deleteEvents = () => {
+    const BtnEvents = () => {
         const ele = document.querySelector(view.domstr.eventslist);
         console.log(ele);
         ele.addEventListener("click", (event) => {
-            const deleteid = parseInt(event.target.parentNode.parentNode.id);
-            if (deleteid !== '') {
-                console.log(event.target.id);
-                state.eventslist = state.eventslist.filter((ev) => {
-                    return +ev.id !== +deleteid;
-                });
-                model.deleteEvents(deleteid);
+            event.preventDefault();
+            const nodeId = parseInt(event.target.parentNode.parentNode.id);
+            //delete events
+            if(event.target.classList.contains("delete_btn")){
+                if (nodeId !== '') {
+                    state.eventslist = state.eventslist.filter((ev) => {
+                        return +ev.id !== +nodeId;
+                    });
+                    model.deleteEvents(nodeId);
+                }
             }
+            //edit events
+            if(event.target.classList.contains("edit_btn")){
+                if (nodeId !== '') {
+                    //switch the button groups:
+                    const node = event.target.parentNode.parentNode;
+                    const btn_group1 = event.target.parentNode;
+                    const btn_group2 = (node.childNodes)[9];
+                    console.log(node.childNodes);
+                    btn_group2.classList.add("show");
+                    btn_group2.classList.remove("hidden");
+                    btn_group1.classList.add("hidden");
+                    btn_group1.classList.remove("show");
+
+                    //let inputbox enable
+                    const nameInput = (node.childNodes)[1];
+                    const startDateInput = (node.childNodes)[3];
+                    const endDateInput = (node.childNodes)[5];
+
+                    nameInput.disabled = false;
+                    startDateInput.disabled = false;
+                    endDateInput.disabled = false;
+                }
+            }
+
+            //save events
+            if(event.target.classList.contains("save_btn")){
+                if (nodeId !== '') {
+                    //get the data:
+                    const node = event.target.parentNode.parentNode;
+                    const nameInput = (node.childNodes)[1];
+                    const startDateInput = (node.childNodes)[3];
+                    const endDateInput = (node.childNodes)[5];
+                    /*
+                    state.eventslist.forEach((ele)=>{
+                        if(+ele.id===nodeId){
+                            console.log(ele);
+                            ele.eventName=nameInput.value;
+                            ele.startDate
+                            ele
+                        }
+                    })
+                    */
+                    const edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);
+                    edit_event.setId(nodeId);
+                    model.updateEvents(edit_event).then((newEventlists) => {
+                        state.eventslist = newEventlists;
+                        console.log(state.eventslist);
+                    });
+                    
+                    }
+            }
+
         });
     };
 
@@ -274,7 +332,7 @@ const Controller = ((model, view) => {
 
     const bootstrap = () => {
         init();
-        deleteEvents();
+        BtnEvents();
         addEvents();
     };
 
