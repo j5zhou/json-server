@@ -306,14 +306,38 @@ const Controller = ((model, view) => {
                         }
                     })
                     */
-                    const edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);
+                    let edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);
                     edit_event.setId(nodeId);
+                    console.log(edit_event);
+                    
                     model.updateEvents(edit_event).then((newEventlists) => {
-                        state.eventslist = newEventlists;
+                        //state.eventslist = newEventlists;
                         console.log(state.eventslist);
                     });
-                    
                     }
+            }
+            //Close events:
+            if(event.target.classList.contains("close_btn")){
+                if (nodeId !== '') {
+                    //switch the button groups:
+                    const node = event.target.parentNode.parentNode;
+                    const btn_group2 = event.target.parentNode;
+                    const btn_group1 = (node.childNodes)[7];
+                    console.log(btn_group1);
+                    btn_group2.classList.add("hidden");
+                    btn_group2.classList.remove("show");
+                    btn_group1.classList.add("show");
+                    btn_group1.classList.remove("hidden");
+
+                    //let inputbox enable
+                    const nameInput = (node.childNodes)[1];
+                    const startDateInput = (node.childNodes)[3];
+                    const endDateInput = (node.childNodes)[5];
+
+                    nameInput.disabled = true;
+                    startDateInput.disabled = true;
+                    endDateInput.disabled = true;
+                }
             }
 
         });
