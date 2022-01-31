@@ -306,12 +306,9 @@ const Controller = ((model, view) => {
                         }
                     })
                     */
-                    let edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);
-                    edit_event.setId(nodeId);
-                    console.log(edit_event);
-                    
-                    model.updateEvents(edit_event).then((newEventlists) => {
-                        //state.eventslist = newEventlists;
+                    let edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);                    
+                    model.updateEvents(nodeId,edit_event).then((newEventlists) => {
+                        state.eventslist = newEventlists;
                         console.log(state.eventslist);
                     });
                     }
