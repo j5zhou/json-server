@@ -102,3 +102,10 @@ ul li{
     color: hsl(221, 90%, 60%);
     cursor: pointer;
 }
+
+.show{
+    display: inline-block;
+}
+.hidden{
+    display: none;
+}

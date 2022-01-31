@@ -48,22 +48,29 @@ const View = (() => {
     const domstr = {
         eventslist: "#eventslist__container",
         deletebtn: ".delete_btn",
-        inputbox: ".todolist__input",
+        addBtn: "#eventslist-addbtn",
+        addfield_closeBtn: "#addfield-closebtn",
+        addFiled: "#add_field",
+        addfield_saveBtn: "#addfield-savebtn",
+        addfield_name: "#addfield-name",
+        addfield_startDate: "#addfield-startDate",
+        addfield_endDate: "#addfield-endDate",
     };
     const render = (element, tmp) => {
         element.innerHTML = tmp;
     };
-    const formatDate = (date)=>{
-        let M = parseInt(date.getMonth())+1;
-        if(M <10){
-            M = "0"+M;
+    const formatDate = (date) => {
+        let M = parseInt(date.getMonth()) + 1;
+        if (M < 10) {
+            M = "0" + M;
         }
         let D = parseInt(date.getDate());
-        if(D<10){
-            D = "0"+D;
+        if (D < 10) {
+            D = "0" + D;
         }
-        return date.getFullYear()+"-"+M+"-"+D;
+        return date.getFullYear() + "-" + M + "-" + D;
     }
+
     const createTmp = (arr) => {
         let tmp = "";
         arr.forEach((ele) => {
@@ -75,13 +82,28 @@ const View = (() => {
                     <input class="event-item event-input-box" name="eventName" disabled value="${ele.eventName}">
                     <input class="event-item event-input-box" name="startDate" disabled value="${formatDate(startdate)}">
                     <input class="event-item event-input-box" name="endDate"  disabled value="${formatDate(enddate)}">
-                    <div class="event-btn-group">
-                    <button class="event-btns">Edit</button>
-                    <button class="event-btns">Delete</button>
+                    <div class="event-btn-group show">
+                    <button class="event-btns" type="button">Edit</button>
+                    <button class="event-btns" type="button">Delete</button>
+                    </div>
+                    <div class="event-btn-group hidden">
+                    <button class="event-btns" type="button">Save</button>
+                    <button class="event-btns" type="button">CLOSE</button>
                     </div>
                 </li>
             `;
         });
+        tmp += `
+        <li class="flex-containter hidden" id="add_field">
+        <input class="event-item event-input-box" name="eventName" id="addfield-name">
+        <input class="event-item event-input-box" name="startDate" id="addfield-startDate">
+        <input class="event-item event-input-box" name="endDate" id="addfield-endDate">
+        <div class="event-btn-group show">
+        <button class="event-btns" type="button" id="addfield-savebtn" >SAVE</button>
+        <button class="event-btns" type="button" id="addfield-closebtn">CLOSE</button>
+        </div>
+        </li>
+        `
         return tmp;
     };
 
@@ -95,18 +117,40 @@ const View = (() => {
 //------------------------------- Model---------------------------------------- 
 const Model = ((api, view) => {
     class Events {
-        constructor(id, start_date, end_date, name) {
-            this.userId = 20;
-            this.title = title;
-            this.completed = false;
+        constructor(name,start_date, end_date) {
+            let startArr = start_date.split("-");
+            let endArr = end_date.split("-");
+            let startD = new Date();
+            startD.setMonth(parseInt(startArr[1])-1);
+            startD.setFullYear(parseInt(startArr[0]));
+            startD.setDate(parseInt(startArr[2]));
+
+            let endD = new Date();
+            endD.setMonth(parseInt(endArr[1])-1);
+            endD.setFullYear(parseInt(endArr[0]));
+            endD.setDate(parseInt(endArr[2]));
+
+            console.log(startD.getTime());
+
+            this.startDate = startD.getTime()+"";
+            this.endDate = endD.getTime()+"";
+            this.eventName = name;
         }
     }
 
     class State {
         #eventslist = [];
+        #AddField = false;
 
         get eventslist() {
             return this.#eventslist;
+        }
+
+        get AddField() {
+            return this.#AddField;
+        }
+        set AddField(value) {
+            this.#AddField = value;
         }
 
         set eventslist(newdata) {
@@ -118,6 +162,41 @@ const Model = ((api, view) => {
             //console.log(tmp);
             //console.log(ele);
             view.render(ele, tmp);
+
+            //bind addfield close btn
+            const closeBtn = document.querySelector(view.domstr.addfield_closeBtn);
+            closeBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                this.#AddField = false;
+                const addFiled = document.querySelector(view.domstr.addFiled);
+                addFiled.classList.add("hidden");
+            });
+
+            //bind addfield save btn
+            const saveBtn = document.querySelector(view.domstr.addfield_saveBtn);
+            saveBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                this.#AddField = false;
+                const addFiled = document.querySelector(view.domstr.addFiled);
+                addFiled.classList.add("hidden");
+
+                //get the data:
+                let name = document.querySelector(view.domstr.addfield_name);
+                let endDate = document.querySelector(view.domstr.addfield_endDate);
+                let startDate = document.querySelector(view.domstr.addfield_startDate);
+
+                const new_event = new Events(name.value, startDate.value, endDate.value);
+                
+                api.addEvents(new_event).then((newEventlists) => {
+                    this.#eventslist = [newEventlists, ...this.#eventslist];
+                    console.log(this.#eventslist);
+                    name.value="";
+                    endDate.value="";
+                    startDate.value="";
+                });
+                
+
+            });
         }
     }
 
@@ -141,15 +220,13 @@ const Controller = ((model, view) => {
     const state = new model.State();
 
     const addEvents = () => {
-        const inputbox = document.querySelector(view.domstr.inputbox);
+        const addBtn = document.querySelector(view.domstr.addBtn);
 
-        inputbox.addEventListener("keyup", (event) => {
-            if (event.key === "Enter") {
-                const todo = new model.Todo(event.target.value);
-                model.addTodo(todo).then(newtodo => {
-                    state.todolist = [newtodo, ...state.todolist];
-                    event.target.value = '';
-                });
+        addBtn.addEventListener("click", (event) => {
+            if (!state.AddField) {
+                state.AddField = true;
+                const addFiled = document.querySelector(view.domstr.addFiled);
+                addFiled.classList.remove("hidden");
             }
         });
     };
@@ -166,15 +243,19 @@ const Controller = ((model, view) => {
 
     const init = () => {
         model.getEvents().then((data) => {
-            //console.log(data);
+            console.log(data);
             state.eventslist = data;
         });
     };
 
+    const addFiledBtns = () => {
+    
+    }
+
     const bootstrap = () => {
         init();
         //deletTodo();
-        //addTodo();
+        addEvents();
     };
 
     return { bootstrap };
