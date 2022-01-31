@@ -22,17 +22,16 @@ const Appapi = (() => {
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-        });
+        }).then((response) => response.json());;
 
     const updateEvents = (id, events) =>
         fetch([baseurl, path, id].join("/"), {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                Accept: "application/json",
             },
             body: JSON.stringify(events),
-        });
+        }).then((response) => response.json());;
 
 
     return {
@@ -121,23 +120,18 @@ const Model = ((api, view) => {
             let startArr = start_date.split("-");
             let endArr = end_date.split("-");
             let startD = new Date();
+            startD.setDate(parseInt(startArr[2]));
             startD.setMonth(parseInt(startArr[1])-1);
             startD.setFullYear(parseInt(startArr[0]));
-            startD.setDate(parseInt(startArr[2]));
-
             let endD = new Date();
+            endD.setDate(parseInt(endArr[2]));
             endD.setMonth(parseInt(endArr[1])-1);
             endD.setFullYear(parseInt(endArr[0]));
-            endD.setDate(parseInt(endArr[2]));
 
-            console.log(startD.getTime());
-
-            this.startDate = startD.getTime()+"";
-            this.endDate = endD.getTime()+"";
+            this.startDate = startD.getTime();
+            this.endDate = endD.getTime();
             this.eventName = name;
-        }
-        setId(id){
-            this.id=id;
+
         }
     }
 
@@ -189,6 +183,7 @@ const Model = ((api, view) => {
                 let startDate = document.querySelector(view.domstr.addfield_startDate);
 
                 const new_event = new Events(name.value, startDate.value, endDate.value);
+                
                 
                 api.addEvents(new_event).then((newEventlists) => {
                     this.#eventslist = [newEventlists, ...this.#eventslist];
@@ -251,7 +246,6 @@ const Controller = ((model, view) => {
 
     const BtnEvents = () => {
         const ele = document.querySelector(view.domstr.eventslist);
-        console.log(ele);
         ele.addEventListener("click", (event) => {
             event.preventDefault();
             const nodeId = parseInt(event.target.parentNode.parentNode.id);
@@ -306,12 +300,12 @@ const Controller = ((model, view) => {
                         }
                     })
                     */
-                    let edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value);                    
-                    model.updateEvents(nodeId,edit_event).then((newEventlists) => {
-                        state.eventslist = newEventlists;
-                        console.log(state.eventslist);
-                    });
+                    let edit_event = new model.Events(nameInput.value, startDateInput.value, endDateInput.value); 
+                               
+                    model.updateEvents(nodeId,edit_event);
+                    
                     }
+
             }
             //Close events:
             if(event.target.classList.contains("close_btn")){
@@ -346,10 +340,6 @@ const Controller = ((model, view) => {
             state.eventslist = data;
         });
     };
-
-    const addFiledBtns = () => {
-    
-    }
 
     const bootstrap = () => {
         init();
