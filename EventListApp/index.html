@@ -10,10 +10,45 @@
 
 <body>
   <header class="header">
-    <nav class="flex-container">
-    </nav>
+    <h1>Event Lists</h1>
   </header>
-  <main>
+  <main class="content">
+    <section class="eventslist">
+      <form class="eventslist-form">
+      <div class="eventslist-add">
+        <button class="eventslist-addbtn" type="button">ADD NEW</button>
+      </div>
+      <header class="flex-containter eventlist-header">
+        <div>Event Name</div>
+        <div>Start date</div>
+        <div>End date</div>
+        <div>Actions</div>
+      </header>
+      <ul id="eventslist__container">
+        <li class="flex-containter">
+            <input class="event-item event-input-box">
+            <input class="event-item event-input-box">
+            <input class="event-item event-input-box">
+            <div class="event-btn-group">
+               <button class="event-btns">Edit</button>
+               <button class="event-btns">Delete</button>
+            </div>
+        </li>
+        <li>
+            <span>todo</span>
+            <button>X</button>
+        </li>
+        <li>
+            <span>todo</span>
+            <button>X</button>
+        </li>
+        <li>
+            <span>todo</span>
+            <button>X</button>
+        </li>
+      </ul>
+    </form>
+    </section>
   </main>
   <footer class="footer">
   </footer>

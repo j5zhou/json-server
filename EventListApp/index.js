@@ -24,7 +24,7 @@ const Appapi = (() => {
             },
         });
 
-    const updateEvents = (id,events) =>
+    const updateEvents = (id, events) =>
         fetch([baseurl, path, id].join("/"), {
             method: "PUT",
             headers: {
@@ -46,22 +46,39 @@ const Appapi = (() => {
 //------------------------------- View ---------------------------------------- 
 const View = (() => {
     const domstr = {
-        eventslist: "#eventlist__container",
+        eventslist: "#eventslist__container",
         deletebtn: ".delete_btn",
         inputbox: ".todolist__input",
     };
     const render = (element, tmp) => {
         element.innerHTML = tmp;
     };
+    const formatDate = (date)=>{
+        let M = parseInt(date.getMonth())+1;
+        if(M <10){
+            M = "0"+M;
+        }
+        let D = parseInt(date.getDate());
+        if(D<10){
+            D = "0"+D;
+        }
+        return date.getFullYear()+"-"+M+"-"+D;
+    }
     const createTmp = (arr) => {
         let tmp = "";
         arr.forEach((ele) => {
+            let startdate = new Date(+ele.startDate);
+            let enddate = new Date(+ele.endDate);
+            console.log(formatDate(startdate));
             tmp += `
-                <li>
-                    <span>${ele.title}</span>
-                    <button class="delete_btn" id="${ele.id}">
-                        X
-                    </button>
+                <li class="flex-containter" id="${ele.id}">
+                    <input class="event-item event-input-box" name="eventName" disabled value="${ele.eventName}">
+                    <input class="event-item event-input-box" name="startDate" disabled value="${formatDate(startdate)}">
+                    <input class="event-item event-input-box" name="endDate"  disabled value="${formatDate(enddate)}">
+                    <div class="event-btn-group">
+                    <button class="event-btns">Edit</button>
+                    <button class="event-btns">Delete</button>
+                    </div>
                 </li>
             `;
         });
@@ -78,7 +95,7 @@ const View = (() => {
 //------------------------------- Model---------------------------------------- 
 const Model = ((api, view) => {
     class Events {
-        constructor(title) {
+        constructor(id, start_date, end_date, name) {
             this.userId = 20;
             this.title = title;
             this.completed = false;
@@ -98,6 +115,8 @@ const Model = ((api, view) => {
             // render the todolist
             const ele = document.querySelector(view.domstr.eventslist);
             const tmp = view.createTmp(this.#eventslist);
+            //console.log(tmp);
+            //console.log(ele);
             view.render(ele, tmp);
         }
     }
@@ -147,15 +166,15 @@ const Controller = ((model, view) => {
 
     const init = () => {
         model.getEvents().then((data) => {
-            console.log(data);
+            //console.log(data);
             state.eventslist = data;
         });
     };
 
     const bootstrap = () => {
         init();
-        deletTodo();
-        addTodo();
+        //deletTodo();
+        //addTodo();
     };
 
     return { bootstrap };
