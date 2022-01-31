@@ -83,8 +83,8 @@ const View = (() => {
                     <input class="event-item event-input-box" name="startDate" disabled value="${formatDate(startdate)}">
                     <input class="event-item event-input-box" name="endDate"  disabled value="${formatDate(enddate)}">
                     <div class="event-btn-group show">
-                    <button class="event-btns" type="button">Edit</button>
-                    <button class="event-btns" type="button">Delete</button>
+                    <button class="event-btns edit_btn" type="button">Edit</button>
+                    <button class="event-btns delete_btn" type="button">Delete</button>
                     </div>
                     <div class="event-btn-group hidden">
                     <button class="event-btns" type="button">Save</button>
@@ -197,6 +197,21 @@ const Model = ((api, view) => {
                 
 
             });
+
+            /*
+            //bind the deleteBtn
+            const deleteBtn = document.querySelector(view.domstr.deletebtn);
+            deleteBtn.addEventListener("click", (event) => {
+                const deleteid = parseInt(event.target.parentNode.parentNode.id);
+                console.log("deleteid:",deleteid);
+                console.log(event.target.parentNode.parentNode);
+                this.#eventslist = this.#eventslist.filter((ele) => {
+                    return +ele.id !== deleteid;
+                });
+                console.log(this.#eventslist);
+                //api.deleteEvents(deleteid);
+            });
+            */
         }
     }
 
@@ -232,12 +247,17 @@ const Controller = ((model, view) => {
     };
 
     const deleteEvents = () => {
-        const ele = document.querySelector(view.domstr.todolist);
+        const ele = document.querySelector(view.domstr.eventslist);
+        console.log(ele);
         ele.addEventListener("click", (event) => {
-            state.todolist = state.todolist.filter((todo) => {
-                return +todo.id !== +event.target.id;
-            });
-            model.deleteTodo(event.target.id);
+            const deleteid = parseInt(event.target.parentNode.parentNode.id);
+            if (deleteid !== '') {
+                console.log(event.target.id);
+                state.eventslist = state.eventslist.filter((ev) => {
+                    return +ev.id !== +deleteid;
+                });
+                model.deleteEvents(deleteid);
+            }
         });
     };
 
@@ -254,7 +274,7 @@ const Controller = ((model, view) => {
 
     const bootstrap = () => {
         init();
-        //deletTodo();
+        deleteEvents();
         addEvents();
     };
 
