@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./index.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <title>EventList</title>
 </head>
 
@@ -14,6 +15,7 @@
   </header>
   <main class="content">
     <section class="eventslist">
+      <form>
       <div class="eventslist-add">
         <button class="eventslist-addbtn" type="button" id="eventslist-addbtn">ADD NEW</button>
       </div>
@@ -25,7 +27,7 @@
       </header>
       <ul id="eventslist__container">
         <li class="flex-containter">
-            <input class="event-item event-input-box">
+            <input class="event-item event-input-box" type="date">
             <input class="event-item event-input-box">
             <input class="event-item event-input-box">
             <div class="event-btn-group">
@@ -46,6 +48,7 @@
             <button>X</button>
         </li>
       </ul>
+      </form>
     </section>
   </main>
   <footer class="footer">
